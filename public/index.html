@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Electricity Grid Manager - Exhaustive Stack</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f4f6f9; color: #333; }
+        .header { background: #2c3e50; color: white; padding: 20px; text-align: center; }
+        .tabs { display: flex; justify-content: center; background: #34495e; padding: 10px; flex-wrap: wrap;}
+        .tab-btn { background: none; border: none; color: white; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .tab-btn:hover, .active-tab { background: #2980b9; border-radius: 4px; }
+        .container { padding: 30px; max-width: 1200px; margin: auto; }
+        .panel { display: none; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .active-panel { display: block; }
+        input, button { padding: 10px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc; margin-right: 10px; margin-bottom: 10px; }
+        button { background-color: #27ae60; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #2ecc71; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;}
+        h3 { border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .response-box { background: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap; font-family: monospace; max-height: 400px; overflow-y: scroll;}
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>⚡ Exhaustive Grid Database Manager</h1>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active-tab" onclick="switchTab('consumer')">Consumer Portal</button>
+        <button class="tab-btn" onclick="switchTab('admin')">Admin Portal</button>
+        <button class="tab-btn" onclick="switchTab('analytics')">Master Analytics (22 Queries)</button>
+    </div>
+
+    <div class="container">
+        
+        <!-- CONSUMER PORTAL -->
+        <div id="consumer" class="panel active-panel">
+            <h2>Consumer Dashboard</h2>
+            <input type="number" id="consId" placeholder="Enter Consumer ID (e.g., 1)" value="1">
+            <input type="date" id="startDate" value="2024-01-01">
+            <input type="date" id="endDate" value="2024-04-01">
+            <div class="btn-group">
+                <button onclick="fetchData(`/api/consumer/${document.getElementById('consId').value}/bills`, 'consumerOutput')">View Bills</button>
+                <button onclick="fetchData(`/api/consumer/${document.getElementById('consId').value}/complaints`, 'consumerOutput')">Track Complaints</button>
+                <button onclick="fetchData(`/api/consumer/${document.getElementById('consId').value}/tariff`, 'consumerOutput')">View Active Tariff</button>
+                <button onclick="fetchData(`/api/consumer/${document.getElementById('consId').value}/consumption-period?start=${document.getElementById('startDate').value}&end=${document.getElementById('endDate').value}`, 'consumerOutput')">Consumption in Period</button>
+            </div>
+            <h3>Data Output</h3>
+            <div id="consumerOutput" class="response-box">Awaiting Query...</div>
+        </div>
+
+        <!-- ADMIN PORTAL -->
+        <div id="admin" class="panel">
+            <h2>Administrative Actions</h2>
+            <div class="btn-group">
+                <button onclick="fetchData('/api/admin/defaulters', 'adminOutput')">Scan Defaulters</button>
+                <button onclick="fetchData('/api/admin/pending-complaints', 'adminOutput')">Pending Complaints</button>
+                <button onclick="fetchData('/api/admin/negative-balance', 'adminOutput')">Negative Balances</button>
+            </div>
+            
+            <h3>Update State Tariff</h3>
+            <input type="text" id="stateName" placeholder="State (e.g., Gujarat)">
+            <input type="number" id="unitCharge" placeholder="Unit Charge">
+            <input type="number" id="subsidy" placeholder="Subsidy">
+            <input type="number" id="rebate" placeholder="Solar Rebate">
+            <button onclick="updateTariff()" style="background-color: #f39c12;">Run UPDATE Query</button>
+
+            <h3>Data Output</h3>
+            <div id="adminOutput" class="response-box">Awaiting Query...</div>
+        </div>
+
+        <!-- EXHAUSTIVE ANALYTICS PORTAL -->
+        <div id="analytics" class="panel">
+            <h2>Grid Intelligence & Master SQL Analytics</h2>
+            
+            <input type="date" id="complaintStart" value="2024-04-01">
+            <input type="date" id="complaintEnd" value="2024-04-01">
+
+            <div class="btn-group">
+                <button onclick="fetchData('/api/analytics/users-per-state', 'analyticsOutput')">Users Per State</button>
+                <button onclick="fetchData('/api/analytics/common-payment', 'analyticsOutput')">Most Common Payment</button>
+                <button onclick="fetchData('/api/analytics/consumer-list', 'analyticsOutput')">All Consumers List</button>
+                <button onclick="fetchData('/api/analytics/solar-consumers', 'analyticsOutput')">Consumers with Solar</button>
+                <button onclick="fetchData('/api/analytics/employees', 'analyticsOutput')">Employee Directory</button>
+                <button onclick="fetchData('/api/analytics/solar-ratio', 'analyticsOutput')">Solar Adoption Ratio</button>
+                <button onclick="fetchData(`/api/analytics/complaint-stats?start=${document.getElementById('complaintStart').value}&end=${document.getElementById('complaintEnd').value}`, 'analyticsOutput')">Complaint Stats by Date</button>
+                <button onclick="fetchData('/api/analytics/dept-consumption', 'analyticsOutput')">Consumption by Dept</button>
+                <button onclick="fetchData('/api/analytics/top-states-consumption', 'analyticsOutput')">Top 2 States (Avg Consumption)</button>
+                <button onclick="fetchData('/api/analytics/high-solar-generators', 'analyticsOutput')">Gen > Consumption Users</button>
+                <button onclick="fetchData('/api/analytics/complaints-per-user', 'analyticsOutput')">Total Complaints per User</button>
+                <button onclick="fetchData('/api/analytics/top-net-generation', 'analyticsOutput')">Top 3 Net Generation Diff</button>
+                <button onclick="fetchData('/api/analytics/above-avg-consumption', 'analyticsOutput')">Users > National Avg Consumption</button>
+                <button onclick="fetchData('/api/analytics/highest-bill-users', 'analyticsOutput')">Users with Highest Bills</button>
+                <button onclick="fetchData('/api/analytics/national-avg-states', 'analyticsOutput')">States > National Avg Bill</button>
+            </div>
+
+            <h3>Data Output</h3>
+            <div id="analyticsOutput" class="response-box">Awaiting Query...</div>
+        </div>
+
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active-panel'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById(tabId).classList.add('active-panel');
+            event.target.classList.add('active-tab');
+        }
+
+        async function fetchData(url, outputBoxId) {
+            try {
+                document.getElementById(outputBoxId).textContent = "Executing Query...";
+                const res = await fetch(url);
+                const data = await res.json();
+                document.getElementById(outputBoxId).textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                document.getElementById(outputBoxId).textContent = "Error executing query.";
+            }
+        }
+
+        async function updateTariff() {
+            const payload = {
+                stateName: document.getElementById('stateName').value,
+                unitCharge: document.getElementById('unitCharge').value,
+                subsidy: document.getElementById('subsidy').value,
+                rebate: document.getElementById('rebate').value
+            };
+            const res = await fetch('/api/admin/update-tariff', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            document.getElementById('adminOutput').textContent = "TARIFF UPDATED SUCCESSFULLY:\n" + JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>
